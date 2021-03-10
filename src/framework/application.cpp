@@ -5,12 +5,22 @@
 #include "mesh.h"
 #include "shader.h"
 #include "texture.h"
+#include <light.h>
 
 Camera* camera = NULL;
 Mesh* mesh = NULL;
 Matrix44 model_matrix;
+
+Shader* shader_actual = NULL;
 Shader* shader = NULL;
+Shader* shader2 = NULL;
+Shader* shader3 = NULL;
 Texture* texture = NULL;
+Texture* texture2 = NULL;
+Light* light = NULL;
+
+Vector3 ambient_light(0.6, 0.6, 0.6);
+
 
 Application::Application(const char* caption, int width, int height)
 {
@@ -43,7 +53,8 @@ void Application::init(void)
 
 	//load the texture
 	texture = new Texture();
-	if(!texture->load("../res/textures/lee_color_specular.tga"))
+	texture2 = new Texture();
+	if(!texture->load("../res/textures/lee_color_specular.tga")|| !texture2->load("../res/textures/lee_normal.tga"))
 	{
 		std::cout << "Texture not found" << std::endl;
 		exit(1);
@@ -51,9 +62,11 @@ void Application::init(void)
 
 	//we load a shader
 	shader = Shader::Get("../res/shaders/texture.vs","../res/shaders/texture.fs");
-
+	shader2= Shader::Get("../res/shaders/phong.vs", "../res/shaders/phong.fs");
+	shader3 = Shader::Get("../res/shaders/phongW.vs", "../res/shaders/phongW.fs");
+	shader_actual = shader3;
 	//load whatever you need here
-	//......
+	light = new Light();
 }
 
 //render one frame
@@ -68,17 +81,21 @@ void Application::render(void)
 	Matrix44 viewprojection = camera->getViewProjectionMatrix();
 	
 	//enable the shader
-	shader->enable();
-	shader->setMatrix44("model", model_matrix); //upload info to the shader
-	shader->setMatrix44("viewprojection", viewprojection); //upload info to the shader
-
-	shader->setTexture("color_texture", texture, 0 ); //set texture in slot 0
+	shader_actual->enable();
+	shader_actual->setUniform3("camera_position", camera->eye);
+	shader_actual->setMatrix44("model", model_matrix); //upload info to the shader
+	shader_actual->setMatrix44("viewprojection", viewprojection); //upload info to the shader
+	shader_actual->setUniform3("light_ambient", ambient_light);
+	shader_actual->setUniform3("light_position", light->position);
+	shader_actual->setUniform3("light_diffuse", light->diffuse_color);
+	shader_actual->setUniform3("light_specular", light->specular_color);
+	shader_actual->setTexture("color_texture", texture, 0 ); //set texture in slot 0
 
 	//render the data
 	mesh->render(GL_TRIANGLES);
 
 	//disable shader
-	shader->disable();
+	shader_actual->disable();
 
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
