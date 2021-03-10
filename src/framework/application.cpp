@@ -15,6 +15,7 @@ Shader* shader_actual = NULL;
 Shader* shader = NULL;
 Shader* shader2 = NULL;
 Shader* shader3 = NULL;
+Shader* shader4 = NULL;
 Texture* texture = NULL;
 Texture* texture2 = NULL;
 Light* light = NULL;
@@ -64,7 +65,8 @@ void Application::init(void)
 	shader = Shader::Get("../res/shaders/texture.vs","../res/shaders/texture.fs");
 	shader2= Shader::Get("../res/shaders/phong.vs", "../res/shaders/phong.fs");
 	shader3 = Shader::Get("../res/shaders/phongW.vs", "../res/shaders/phongW.fs");
-	shader_actual = shader3;
+	shader4 = Shader::Get("../res/shaders/phongWN.vs", "../res/shaders/phongWN.fs");
+	shader_actual = shader4;
 	//load whatever you need here
 	light = new Light();
 }
@@ -90,6 +92,7 @@ void Application::render(void)
 	shader_actual->setUniform3("light_diffuse", light->diffuse_color);
 	shader_actual->setUniform3("light_specular", light->specular_color);
 	shader_actual->setTexture("color_texture", texture, 0 ); //set texture in slot 0
+	shader_actual->setTexture("texture_normal", texture2, 1);
 
 	//render the data
 	mesh->render(GL_TRIANGLES);
@@ -126,6 +129,21 @@ void Application::onKeyPressed( SDL_KeyboardEvent event )
 	switch (event.keysym.scancode){
 		case SDL_SCANCODE_R: Shader::ReloadAll(); break;
         case SDL_SCANCODE_ESCAPE: exit(0); break; //ESC key, kill the app
+		case SDL_SCANCODE_1:
+			shader_actual = shader;
+			break;
+
+		case SDL_SCANCODE_2:
+			shader_actual = shader2;
+			break;
+
+		case SDL_SCANCODE_3:
+			shader_actual = shader3;
+			break;
+
+		case SDL_SCANCODE_4:
+			shader_actual = shader4;
+			break;
 	}
 
 }
