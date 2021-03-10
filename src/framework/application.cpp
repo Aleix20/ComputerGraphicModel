@@ -21,7 +21,9 @@ Texture* texture2 = NULL;
 Light* light = NULL;
 
 Vector3 ambient_light(0.6, 0.6, 0.6);
-
+Vector3 materials[2];
+bool multipleModels = false;
+int nmodels = 0;
 
 Application::Application(const char* caption, int width, int height)
 {
@@ -66,14 +68,22 @@ void Application::init(void)
 	shader2= Shader::Get("../res/shaders/phong.vs", "../res/shaders/phong.fs");
 	shader3 = Shader::Get("../res/shaders/phongW.vs", "../res/shaders/phongW.fs");
 	shader4 = Shader::Get("../res/shaders/phongWN.vs", "../res/shaders/phongWN.fs");
-	shader_actual = shader4;
+	shader_actual = shader;
 	//load whatever you need here
 	light = new Light();
+	materials[0] = Vector3{ 0.5,0.2,0.733 };
+	materials[1] = Vector3{ 0.9,0.6,0.733 };
 }
 
 //render one frame
 void Application::render(void)
 {
+	if (!multipleModels) { //Si no estem en el cas de renderitzar múltiples models, el número de models serà 1
+		nmodels = 1;
+	}
+	else {
+		nmodels = 3;
+	}
 	// Clear the window and the depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable( GL_DEPTH_TEST );
@@ -85,17 +95,17 @@ void Application::render(void)
 	//enable the shader
 	shader_actual->enable();
 	shader_actual->setUniform3("camera_position", camera->eye);
-	shader_actual->setMatrix44("model", model_matrix); //upload info to the shader
-	shader_actual->setMatrix44("viewprojection", viewprojection); //upload info to the shader
+	//shader_actual->setMatrix44("model", model_matrix); //upload info to the shader
+	//shader_actual->setMatrix44("viewprojection", viewprojection); //upload info to the shader
 	shader_actual->setUniform3("light_ambient", ambient_light);
 	shader_actual->setUniform3("light_position", light->position);
 	shader_actual->setUniform3("light_diffuse", light->diffuse_color);
 	shader_actual->setUniform3("light_specular", light->specular_color);
 	shader_actual->setTexture("color_texture", texture, 0 ); //set texture in slot 0
 	shader_actual->setTexture("texture_normal", texture2, 1);
-
+	renderModels(viewprojection, nmodels);
 	//render the data
-	mesh->render(GL_TRIANGLES);
+	//mesh->render(GL_TRIANGLES);
 
 	//disable shader
 	shader_actual->disable();
@@ -103,7 +113,45 @@ void Application::render(void)
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
 }
+void Application::renderModels(Matrix44& viewprojection, int nmodels)
+{
+	//enviem tantes model_matrix com models, desplaçades minimament en l'eix x
+	for (int i = 0; i <= nmodels/2; i++) {
+		Matrix44 model_matrix;
+		model_matrix.setIdentity();
+		
+		model_matrix.translate(i * -17, 0, -10*i); //example of translation
+		
+		shader_actual->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
+		shader_actual->setMatrix44("viewprojection", viewprojection);//upload viewprojection info to the shader
+		if (i==0) {
+			shader_actual->setVector3("material_color", Vector3{1.0,1.0,1.0});
+		}
+		else {
+			
+			shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
+		}
+		mesh->render(GL_TRIANGLES);
+	}
+	for (int i = 0; i <= nmodels / 2; i++) {
+		Matrix44 model_matrix;
+		model_matrix.setIdentity();
 
+		model_matrix.translate(i * 17, 0, -10*i); //example of translation
+
+		shader_actual->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
+		shader_actual->setMatrix44("viewprojection", viewprojection);//upload viewprojection info to the shader
+		if (i == 0) {
+			shader_actual->setVector3("material_color", Vector3{ 1.0,1.0,1.0 });
+		}
+		else {
+
+			//shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
+			shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
+		}
+		mesh->render(GL_TRIANGLES);
+	}
+}
 //called after render
 void Application::update(double seconds_elapsed)
 {
@@ -143,6 +191,14 @@ void Application::onKeyPressed( SDL_KeyboardEvent event )
 
 		case SDL_SCANCODE_4:
 			shader_actual = shader4;
+			break;
+		case SDL_SCANCODE_M :
+			if (!multipleModels) {
+				multipleModels = true;
+			}
+			else {
+				multipleModels = false;
+			}
 			break;
 	}
 

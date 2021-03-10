@@ -13,6 +13,7 @@ uniform vec3 light_position;
 uniform vec3 light_ambient;
 uniform vec3 light_diffuse;
 uniform vec3 light_specular;
+uniform vec3 material_color;
 
 
 
@@ -51,5 +52,6 @@ void main()
 	vec3 color = colorT.xyz*light_ambient + colorT.xyz*diffuse + ks*specular;
 	//vec3 color=(light_ambient+diffuse+specular)*colorT.xyz;
 	//set the ouput color por the pixel
-	gl_FragColor = vec4( color, 1.0 ) *1.0;
+
+	gl_FragColor = vec4( color, 1.0 ) *1.0* vec4(material_color,0.0);
 }

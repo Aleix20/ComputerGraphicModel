@@ -32,6 +32,7 @@ public:
 	//main methods
 	void init( void );
 	void render( void );
+	void renderModels(Matrix44& viewprojection, int nmodels);
 	void update( double dt );
 
 	//methods for events
