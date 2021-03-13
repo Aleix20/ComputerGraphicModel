@@ -145,9 +145,9 @@ void Application::renderModels(Matrix44& viewprojection, int nmodels)
 			shader_actual->setVector3("material_color", Vector3{ 1.0,1.0,1.0 });
 		}
 		else {
-
+					//estructura objecte amb model i un material
 			//shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
-			shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
+			shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX }); //Sha de modificar el fs perque el material es multipliqui en comptes de canviar el color
 		}
 		mesh->render(GL_TRIANGLES);
 	}
