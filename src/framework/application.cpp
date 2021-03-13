@@ -5,7 +5,8 @@
 #include "mesh.h"
 #include "shader.h"
 #include "texture.h"
-#include <light.h>
+#include "light.h"
+#include "material.h"
 
 Camera* camera = NULL;
 Mesh* mesh = NULL;
@@ -21,7 +22,7 @@ Texture* texture2 = NULL;
 Light* light = NULL;
 
 Vector3 ambient_light(0.6, 0.6, 0.6);
-Vector3 materials[2];
+Material* materials[3];
 bool multipleModels = false;
 int nmodels = 0;
 
@@ -71,8 +72,9 @@ void Application::init(void)
 	shader_actual = shader;
 	//load whatever you need here
 	light = new Light();
-	materials[0] = Vector3{ 0.5,0.2,0.733 };
-	materials[1] = Vector3{ 0.9,0.6,0.733 };
+	materials[0] = new Material();
+	materials[1] = new Material(Vector3{ 1.0, 0.5, 0.31 }, Vector3{ 1.0, 0.5, 0.31 }, Vector3{0.5,0.5,0.5}, 30.0);
+	materials[2] = new Material(Vector3{ 0.2, 1.0, 0.31 }, Vector3{ 0.2, 1.0, 0.31 }, Vector3{ 0.5,0.5,0.5 }, 30.0);
 }
 
 //render one frame
@@ -95,8 +97,6 @@ void Application::render(void)
 	//enable the shader
 	shader_actual->enable();
 	shader_actual->setUniform3("camera_position", camera->eye);
-	//shader_actual->setMatrix44("model", model_matrix); //upload info to the shader
-	//shader_actual->setMatrix44("viewprojection", viewprojection); //upload info to the shader
 	shader_actual->setUniform3("light_ambient", ambient_light);
 	shader_actual->setUniform3("light_position", light->position);
 	shader_actual->setUniform3("light_diffuse", light->diffuse_color);
@@ -104,8 +104,7 @@ void Application::render(void)
 	shader_actual->setTexture("color_texture", texture, 0 ); //set texture in slot 0
 	shader_actual->setTexture("texture_normal", texture2, 1);
 	renderModels(viewprojection, nmodels);
-	//render the data
-	//mesh->render(GL_TRIANGLES);
+	
 
 	//disable shader
 	shader_actual->disable();
@@ -125,11 +124,17 @@ void Application::renderModels(Matrix44& viewprojection, int nmodels)
 		shader_actual->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 		shader_actual->setMatrix44("viewprojection", viewprojection);//upload viewprojection info to the shader
 		if (i==0) {
-			shader_actual->setVector3("material_color", Vector3{1.0,1.0,1.0});
+			shader_actual->setUniform3("material_ambient", materials[0]->ambient);
+			shader_actual->setUniform3("material_diffuse", materials[0]->diffuse);
+			shader_actual->setUniform3("material_specular", materials[0]->specular);
+			shader_actual->setFloat("material_shininess", materials[0]->shininess);
 		}
 		else {
 			
-			shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
+			shader_actual->setUniform3("material_ambient", materials[2]->ambient);
+			shader_actual->setUniform3("material_diffuse", materials[2]->diffuse);
+			shader_actual->setUniform3("material_specular", materials[2]->specular);
+			shader_actual->setFloat("material_shininess", materials[2]->shininess);
 		}
 		mesh->render(GL_TRIANGLES);
 	}
@@ -142,12 +147,17 @@ void Application::renderModels(Matrix44& viewprojection, int nmodels)
 		shader_actual->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 		shader_actual->setMatrix44("viewprojection", viewprojection);//upload viewprojection info to the shader
 		if (i == 0) {
-			shader_actual->setVector3("material_color", Vector3{ 1.0,1.0,1.0 });
+			shader_actual->setUniform3("material_ambient", materials[0]->ambient);
+			shader_actual->setUniform3("material_diffuse", materials[0]->diffuse);
+			shader_actual->setUniform3("material_specular", materials[0]->specular);
+			shader_actual->setFloat("material_shininess", materials[0]->shininess);
 		}
 		else {
 					//estructura objecte amb model i un material
-			//shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX });
-			shader_actual->setVector3("material_color", Vector3{ (float)rand() / RAND_MAX,(float)rand() / RAND_MAX,(float)rand() / RAND_MAX }); //Sha de modificar el fs perque el material es multipliqui en comptes de canviar el color
+			shader_actual->setUniform3("material_ambient", materials[1]->ambient);
+			shader_actual->setUniform3("material_diffuse", materials[1]->diffuse);
+			shader_actual->setUniform3("material_specular", materials[1]->specular);
+			shader_actual->setFloat("material_shininess", materials[1]->shininess);
 		}
 		mesh->render(GL_TRIANGLES);
 	}

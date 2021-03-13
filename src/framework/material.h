@@ -12,6 +12,8 @@ public:
 	float shininess; //glosiness coefficient (plasticity)
 
 	Material();
+
+	Material(Vector3 ambient, Vector3 diffuse, Vector3 specular, float shininess);
 	
 };
 

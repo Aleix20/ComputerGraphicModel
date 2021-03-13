@@ -13,7 +13,12 @@ uniform vec3 light_position;
 uniform vec3 light_ambient;
 uniform vec3 light_diffuse;
 uniform vec3 light_specular;
-uniform vec3 material_color;
+
+
+uniform vec3 material_ambient;
+uniform vec3 material_diffuse;
+uniform vec3 material_specular;
+uniform float material_shininess;
 
 
 
@@ -46,12 +51,12 @@ void main()
 	//calculem les contribucions de la llum difusa i l'especular
 	vec3 diffuse = clamp(dot(N,L),0.0,1.0) * light_diffuse;
 
-	vec3 specular = pow(clamp(dot(R,V),0.0,1.0), 30.0) * light_specular;
+	vec3 specular = pow(clamp(dot(R,V),0.0,1.0), material_shininess) * light_specular;
 	vec3 ks =colorT.xyz*colorT.w;
 	//Calculem el color final segons la llum i les propietats del material
-	vec3 color = colorT.xyz*light_ambient + colorT.xyz*diffuse + ks*specular;
+	vec3 color = colorT.xyz*light_ambient* material_ambient + colorT.xyz*diffuse*material_diffuse + ks*specular* material_specular;
 	//vec3 color=(light_ambient+diffuse+specular)*colorT.xyz;
 	//set the ouput color por the pixel
 
-	gl_FragColor = vec4( color, 1.0 ) *1.0* vec4(material_color,0.0); //NOOOOOOO
+	gl_FragColor = vec4( color, 1.0 ) *1.0; 
 }
