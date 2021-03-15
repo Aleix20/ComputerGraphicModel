@@ -32,6 +32,7 @@ uniform sampler2D texture_normal;
 void main()
 {
 	//here write the computations for PHONG.
+	//Extreiem els valors de la textura amb les propietats del material
 	vec4 colorT = texture2D( color_texture, v_coord );
 	//Calculem els vectors L, V, N per realitzar els càlculs de la llum
 	vec3 L = light_position - v_wPos.xyz;
@@ -52,10 +53,11 @@ void main()
 	vec3 diffuse = clamp(dot(N,L),0.0,1.0) * light_diffuse;
 
 	vec3 specular = pow(clamp(dot(R,V),0.0,1.0), material_shininess) * light_specular;
+	//Calculem el valor specular del material KS
 	vec3 ks =colorT.xyz*colorT.w;
-	//Calculem el color final segons la llum i les propietats del material
+	//Calculem el color final segons la llum i les propietats del material. També apliquem el nou material que arriba per les uniformes
 	vec3 color = colorT.xyz*light_ambient* material_ambient + colorT.xyz*diffuse*material_diffuse + ks*specular* material_specular;
-	//vec3 color=(light_ambient+diffuse+specular)*colorT.xyz;
+
 	//set the ouput color por the pixel
 
 	gl_FragColor = vec4( color, 1.0 ) *1.0; 

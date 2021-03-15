@@ -96,6 +96,8 @@ void Application::render(void)
 	
 	//enable the shader
 	shader_actual->enable();
+
+	//Enviem valors uniformes necessaris al shader actual
 	shader_actual->setUniform3("camera_position", camera->eye);
 	shader_actual->setUniform3("light_ambient", ambient_light);
 	shader_actual->setUniform3("light_position", light->position);
@@ -103,6 +105,8 @@ void Application::render(void)
 	shader_actual->setUniform3("light_specular", light->specular_color);
 	shader_actual->setTexture("color_texture", texture, 0 ); //set texture in slot 0
 	shader_actual->setTexture("texture_normal", texture2, 1);
+
+	//Funció per renderitzar models
 	renderModels(viewprojection, nmodels);
 	
 
@@ -114,21 +118,26 @@ void Application::render(void)
 }
 void Application::renderModels(Matrix44& viewprojection, int nmodels)
 {
-	//enviem tantes model_matrix com models, desplaçades minimament en l'eix x
+	//enviem tantes model_matrix com models, desplaçades minimament en l'eix x i les dividim entre dos per fer un a cada costat
 	for (int i = 0; i <= nmodels/2; i++) {
+		//Enviem la matrix model per cada mesh
 		Matrix44 model_matrix;
 		model_matrix.setIdentity();
 		
-		model_matrix.translate(i * -17, 0, -10*i); //example of translation
+		//desplacem els models
+		model_matrix.translate(i * -17, 0, -10*i); 
 		
 		shader_actual->setMatrix44("model", model_matrix); //upload the transform matrix to the shader
 		shader_actual->setMatrix44("viewprojection", viewprojection);//upload viewprojection info to the shader
+		
+		//Deixem el material per defecte
 		if (i==0) {
 			shader_actual->setUniform3("material_ambient", materials[0]->ambient);
 			shader_actual->setUniform3("material_diffuse", materials[0]->diffuse);
 			shader_actual->setUniform3("material_specular", materials[0]->specular);
 			shader_actual->setFloat("material_shininess", materials[0]->shininess);
 		}
+		//Enviem un material diferent
 		else {
 			
 			shader_actual->setUniform3("material_ambient", materials[2]->ambient);
@@ -153,7 +162,7 @@ void Application::renderModels(Matrix44& viewprojection, int nmodels)
 			shader_actual->setFloat("material_shininess", materials[0]->shininess);
 		}
 		else {
-					//estructura objecte amb model i un material
+		
 			shader_actual->setUniform3("material_ambient", materials[1]->ambient);
 			shader_actual->setUniform3("material_diffuse", materials[1]->diffuse);
 			shader_actual->setUniform3("material_specular", materials[1]->specular);
