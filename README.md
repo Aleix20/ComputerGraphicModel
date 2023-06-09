@@ -1,6 +1,6 @@
 # How the app works
 
-This is an application where we apply some of the most basic haders when talking about light. In this project we use a mesh of a person, at first with option 1 we just apply ambient light, option 2 we add phong taking into account specular and diffuse light, and finally option 3 shows how using a material that gives us information about the depth, we can get more quality in the face. Option M activates multiple models.
+This is an application where we apply some of the most basic shaders when talking about light. In this project we use a mesh of a person, at first with option 1 we just apply ambient light, option 2 we add phong taking into account specular and diffuse light, and finally option 3 shows how using a material that gives us information about the depth, we can get more quality in the face. Option M activates multiple models.
 
 
 The options are the values on the keyboard option 1, number 1 and so on
